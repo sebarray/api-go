@@ -1,12 +1,14 @@
 package met
 
 import (
+	"api-go/sqlg"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 )
 
@@ -30,11 +32,13 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 	var newTask Task
 	reqbody, err := ioutil.ReadAll(r.Body) //recibo datos que envia el cliente
 	if err != nil {
-		fmt.Fprintln(w, "error")
+		fmt.Fprintln(w, "error al recibir datos del cliente")
 	}
 	json.Unmarshal(reqbody, &newTask) // asigno los valores  recibido al struct
 	newTask.ID = len(tasks) + 1
 	tasks = append(tasks, newTask)
+	sqlg.Insert(newTask.Name, newTask.Content)
+	//
 	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(tasks)
@@ -43,6 +47,7 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 //------------------------------------------*
 func Indexrouter(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "hola")
+
 }
 
 //------------------------------------------*
@@ -98,6 +103,7 @@ func UpdateTask(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "error de dato")
 	}
 	json.Unmarshal(reqbody, &updateTask)
+	sqlg.Update(vars["ID"], updateTask.Name, updateTask.Content)
 	for i, t := range tasks {
 		if t.ID == taskId {
 			tasks = append(tasks[:i], tasks[i+1:]...)
