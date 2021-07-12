@@ -34,59 +34,44 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Fprintln(w, "error al recibir datos del cliente")
 	}
-	json.Unmarshal(reqbody, &newTask) // asigno los valores  recibido al struct
-	newTask.ID = len(tasks) + 1
-	tasks = append(tasks, newTask)
-	sqlg.Insert(newTask.Name, newTask.Content)
+
+	json.Unmarshal(reqbody, &newTask)                       // asigno los valores  recibido al struct
+	newTask.ID = sqlg.Insert(newTask.Name, newTask.Content) //********************************CREAR TAREAS
 	//
 	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(tasks)
+	json.NewEncoder(w).Encode(newTask)
 }
 
 //------------------------------------------*
 func Indexrouter(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "hola")
-
+	sqlg.Selecte("js")
 }
 
 //------------------------------------------*
 func GetTasks(w http.ResponseWriter, r *http.Request) {
+	alltasksS := sqlg.SelectAll("") //*******************************TRAE TAREAS
 	w.Header().Set("content-type", "application/json")
-	json.NewEncoder(w).Encode(tasks)
+	json.NewEncoder(w).Encode(alltasksS)
 }
 
 //------------------------------------------*
 func DeleteTasks(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	taskId, err := strconv.Atoi(vars["ID"])
-	if err != nil {
-		fmt.Fprintln(w, "error id")
-		return
-	}
-	for i, task := range tasks {
-		if task.ID == taskId {
-			tasks = append(tasks[:i], tasks[i+1:]...)
-			w.Header().Set("content-type", "application/json")
-			json.NewEncoder(w).Encode(tasks)
-		}
-	}
+	tasks := sqlg.Delete(vars["ID"])
+	w.Header().Set("content-type", "application/json")
+	json.NewEncoder(w).Encode(tasks)
+
 }
 
 //------------------------------------------*
 func GetTask(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	taskId, err := strconv.Atoi(vars["ID"])
-	if err != nil {
-		fmt.Fprintln(w, "error id")
-		return
-	}
-	for _, task := range tasks {
-		if task.ID == taskId {
-			w.Header().Set("content-type", "application/json")
-			json.NewEncoder(w).Encode(task)
-		}
-	}
+	task := sqlg.SelectAll(vars["ID"]) //********************************TRAE UNA TAREA
+	w.Header().Set("content-type", "application/json")
+	json.NewEncoder(w).Encode(task)
+
 }
 
 //----------------------------------------------------*
@@ -95,6 +80,7 @@ func UpdateTask(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	taskId, err := strconv.Atoi(vars["ID"])
 	var updateTask Task
+
 	if err != nil {
 		fmt.Fprintln(w, "error de id")
 	}
@@ -102,16 +88,14 @@ func UpdateTask(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Fprintln(w, "error de dato")
 	}
+	updateTask.ID = taskId
 	json.Unmarshal(reqbody, &updateTask)
-	sqlg.Update(vars["ID"], updateTask.Name, updateTask.Content)
-	for i, t := range tasks {
-		if t.ID == taskId {
-			tasks = append(tasks[:i], tasks[i+1:]...)
-			updateTask.ID = taskId
-			tasks = append(tasks, updateTask)
-			w.Header().Set("content-type", "application/json")
-			json.NewEncoder(w).Encode(tasks)
-		}
-	}
+
+	sqlg.Update(vars["ID"], updateTask.Name, updateTask.Content) //******************************ACTUALIZA UNA TAREA
+
+	w.Header().Set("content-type", "application/json")
+	json.NewEncoder(w).Encode(updateTask)
 
 }
+
+//----------------------------------------------------------------
