@@ -19,6 +19,7 @@ func main() {
 	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE"})
 	origin := handlers.AllowedOrigins([]string{"*"})
 	PORT := os.Getenv("PORT")
+	fmt.Println("EL puerto es" + PORT)
 	router.HandleFunc("/", met.Indexrouter).Methods("GET")
 	router.HandleFunc("/tasks/{ID}", met.GetTask).Methods("GET")
 	router.HandleFunc("/tasks", met.GetTasks).Methods("GET")
