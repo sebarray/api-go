@@ -47,6 +47,9 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 func Indexrouter(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "hola")
 	sqlg.Selecte("js")
+	w.Header().Set("content-type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode("hola heroku")
 }
 
 //-------------------------------------------*
