@@ -49,7 +49,7 @@ func Indexrouter(w http.ResponseWriter, r *http.Request) {
 	sqlg.Selecte("js")
 }
 
-//------------------------------------------*
+//-------------------------------------------*
 func GetTasks(w http.ResponseWriter, r *http.Request) {
 	alltasksS := sqlg.SelectAll("") //*******************************TRAE TAREAS
 	w.Header().Set("content-type", "application/json")
